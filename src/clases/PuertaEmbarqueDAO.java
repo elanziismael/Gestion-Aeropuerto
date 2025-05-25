@@ -1,14 +1,20 @@
 package clases;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
+/**
+ * <h1>Clase PuertaEmbarqueDAO</h1>
+ * Gestiona el acceso a datos relacionados con puertas de embarque,
+ * incluyendo operaciones como obtención por ID, actualización
+ * y obtención de vuelos asociados a una puerta específica.
+ * Utiliza JDBC para conexión con la base de datos "Aeropuerto".
+ * 
+ * @author elanz
+ * @version 1.0
+ * @since 2025-05-24
+ */
 public class PuertaEmbarqueDAO {
-	
 
     private Connection conexion;
     private final String USUARIO = "root";
@@ -16,10 +22,18 @@ public class PuertaEmbarqueDAO {
     private final String MAQUINA = "localhost";
     private final String BD = "Aeropuerto";
 
+    /**
+     * Constructor. Establece la conexión con la base de datos.
+     */
     public PuertaEmbarqueDAO() {
         conexion = conectar();
     }
 
+    /**
+     * Establece la conexión con la base de datos utilizando JDBC.
+     * 
+     * @return Objeto Connection si la conexión fue exitosa; null si hubo error.
+     */
     private Connection conectar() {
         Connection con = null;
         String url = "jdbc:mysql://" + MAQUINA + "/" + BD;
@@ -31,6 +45,12 @@ public class PuertaEmbarqueDAO {
         return con;
     }
 
+    /**
+     * Recupera una puerta de embarque desde la base de datos a partir de su ID.
+     * 
+     * @param id Identificador de la puerta de embarque.
+     * @return Objeto PuertaEmbarque si se encuentra; null en caso contrario.
+     */
     public PuertaEmbarque obtenerPorId(int id) {
         PuertaEmbarque puerta = null;
         String sql = "SELECT * FROM PuertasEmbarque WHERE id_puerta_embarque = ?";
@@ -55,6 +75,12 @@ public class PuertaEmbarqueDAO {
         return puerta;
     }
 
+    /**
+     * Obtiene todos los vuelos que salen desde una puerta de embarque específica.
+     * 
+     * @param idPuerta Identificador de la puerta de embarque.
+     * @return Lista de objetos Vuelo asociados a esa puerta.
+     */
     public ArrayList<Vuelo> obtenerVuelosPorPuerta(int idPuerta) {
         ArrayList<Vuelo> vuelos = new ArrayList<>();
         String sql = "SELECT * FROM Vuelos WHERE id_puerta_embarque = ?";
@@ -87,7 +113,13 @@ public class PuertaEmbarqueDAO {
 
         return vuelos;
     }
-    
+
+    /**
+     * Actualiza los datos (número y terminal) de una puerta de embarque.
+     * 
+     * @param puerta Objeto PuertaEmbarque con los datos actualizados.
+     * @return true si la actualización fue exitosa; false en caso contrario.
+     */
     public boolean actualizarPuertaEmbarque(PuertaEmbarque puerta) {
         String sql = "UPDATE PuertasEmbarque SET numero_puerta = ?, terminal = ? WHERE id_puerta_embarque = ?";
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
@@ -101,5 +133,4 @@ public class PuertaEmbarqueDAO {
             return false;
         }
     }
-
 }

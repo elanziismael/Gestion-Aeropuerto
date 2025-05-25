@@ -1,72 +1,63 @@
 package clases;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 
-
+/**
+ * <h1>Clase Main</h1>
+ * Clase principal del sistema de gestión de vuelos.
+ * Presenta un menú interactivo en consola para realizar diversas operaciones como listar, agregar,
+ * filtrar, actualizar y eliminar vuelos.
+ * Utiliza DAO para acceso a datos de vuelos, empleados, aviones y puertas de embarque.
+ * 
+ * @author elanz
+ * @version 1.0
+ * @since 2025-05-24
+ */
 public class Main {
+	
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final VueloDAO VueloDao = new VueloDAO();
     private static final EmpleadoDAO empleadoDAO = new EmpleadoDAO();
     private static final PuertaEmbarqueDAO puertaDAO = new PuertaEmbarqueDAO();
 
+    /**
+     * Método principal que lanza la aplicación del menú de gestión de vuelos.
+     * 
+     * @param args Argumentos de línea de comandos (no utilizados).
+     */
     public static void main(String[] args) {
         int opcion;
 
         do {
             mostrarMenu();
             opcion = scanner.nextInt();
-            scanner.nextLine();  
+            scanner.nextLine();
 
             switch (opcion) {
-                case 1:
-                    mostrarVuelos();
-                    break;
-                case 2:
-                	agregarVuelo();
-                    break;
-                case 3:
-                	ObtenerVueloPuertEmbarque();
-                    break;
-                case 4:
-                	filtrarVuelosPorDestino();
-                    break;
-                case 5:
-                	contarVuelosPorDestino();
-                    break;
-                case 6:
-                	mostrarPilotosYAviones();
-                    break;
-                case 7:
-                	actualizarPuertaYCancelarVuelosSevilla();
-                    break;
-                case 8:
-                	eliminarVuelo();
-                    break;
-                case 9:
-                	System.out.println("saliendo...");
-                	break;
+                case 1: mostrarVuelos(); break;
+                case 2: agregarVuelo(); break;
+                case 3: ObtenerVueloPuertEmbarque(); break;
+                case 4: filtrarVuelosPorDestino(); break;
+                case 5: contarVuelosPorDestino(); break;
+                case 6: mostrarPilotosYAviones(); break;
+                case 7: actualizarPuertaYCancelarVuelosSevilla(); break;
+                case 8: eliminarVuelo(); break;
+                case 9: System.out.println("saliendo..."); break;
                 default:
                     System.out.println("Opción incorrecta. Intente nuevamente.");
             }
+        } while (opcion != 9);
 
-        } while (opcion != 8);
-
-        System.out.println("Saliendo...");
         scanner.close();
     }
 
+    /**
+     * Muestra el menú de opciones disponibles en consola.
+     */
     private static void mostrarMenu() {
         System.out.println("--- Menú Vuelos ---");
         System.out.println("1. Ver datos de vuelos");
@@ -75,12 +66,15 @@ public class Main {
         System.out.println("4. Filtrar vuelos por ciudad destino");
         System.out.println("5. Contar cantidad de vuelos por destino");
         System.out.println("6. Mostrar aviones que ha pilotado cada piloto");
-        System.out.println("7. Mostrar porcentaje de ocupación de cada vuelo");
+        System.out.println("7. Actualizar la Puerta Y Cancelar Vuelos Sevilla");
         System.out.println("8. Eliminar un vuelo");
+        System.out.println("9. Salir");
         System.out.print("Ingrese opción: ");
     }
 
-
+    /**
+     * Muestra todos los vuelos almacenados en la base de datos.
+     */
     private static void mostrarVuelos() {
         ArrayList<Vuelo> vuelos = VueloDao.listarVuelos();
         if (vuelos.isEmpty()) {
@@ -93,11 +87,12 @@ public class Main {
         }
     }
 
+    /**
+     * Agrega un nuevo vuelo a la base de datos mediante datos introducidos por el usuario.
+     */
     private static void agregarVuelo() {
-    	
-    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        
-    	try {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        try {
             System.out.println("Ingrese número de vuelo:");
             String numeroVuelo = scanner.nextLine();
 
@@ -109,7 +104,7 @@ public class Main {
 
             System.out.println("Ingrese id piloto (entero):");
             int idPiloto = Integer.parseInt(scanner.nextLine());
-            
+
             if (!empleadoDAO.esPiloto(idPiloto)) {
                 System.out.println("Error: el ID del empleado no corresponde a un piloto.");
                 return;
@@ -130,25 +125,21 @@ public class Main {
             System.out.println("Ingrese hora de llegada (formato yyyy-MM-dd HH:mm):");
             LocalDateTime horaLlegada = LocalDateTime.parse(scanner.nextLine(), formatter);
 
-            System.out.println("Ingrese estado (Correcto, Retrasado, Cancelado):");
-            String estado = scanner.nextLine();
-  
+            String estado = "Correcto";
+
             Vuelo nuevoVuelo = new Vuelo(0, numeroVuelo, idCompania, idAvion, idPiloto, idPuerta, origen, destino, horaSalida, horaLlegada, estado);
-
             VueloDao.create(nuevoVuelo);
-
             System.out.println("Vuelo agregado correctamente.");
 
         } catch (Exception e) {
-            System.out.println("Error al agregar vuelo. Asegúrese de ingresar datos validos.");
+            System.out.println("Error al agregar vuelo. Asegúrese de ingresar datos válidos.");
         }
-    	
     }
 
+    /**
+     * Muestra los vuelos asignados a una puerta de embarque específica.
+     */
     private static void ObtenerVueloPuertEmbarque() {
-    	
-    	PuertaEmbarqueDAO puertaDAO = new PuertaEmbarqueDAO();
-
         System.out.println("Ingrese ID de la puerta de embarque:");
         int idPuerta = Integer.parseInt(scanner.nextLine());
 
@@ -162,7 +153,6 @@ public class Main {
         System.out.println(puerta);
 
         ArrayList<Vuelo> vuelos = puertaDAO.obtenerVuelosPorPuerta(idPuerta);
-
         if (vuelos.isEmpty()) {
             System.out.println("No hay vuelos registrados desde esta puerta.");
         } else {
@@ -173,10 +163,11 @@ public class Main {
         }
     }
 
+    /**
+     * Filtra y muestra vuelos que tienen como destino una ciudad ingresada por el usuario.
+     */
     private static void filtrarVuelosPorDestino() {
-    	
-    	ArrayList<Vuelo> vuelos = VueloDao.listarVuelos();
-
+        ArrayList<Vuelo> vuelos = VueloDao.listarVuelos();
         Set<String> destinosUnicos = vuelos.stream()
             .map(Vuelo::getDestino)
             .collect(Collectors.toCollection(TreeSet::new));
@@ -200,10 +191,11 @@ public class Main {
         }
     }
 
+    /**
+     * Muestra la cantidad de vuelos agrupados por ciudad de destino.
+     */
     private static void contarVuelosPorDestino() {
-        
-    	ArrayList<Vuelo> vuelos = VueloDao.listarVuelos();
-
+        ArrayList<Vuelo> vuelos = VueloDao.listarVuelos();
         Map<String, Long> conteoPorDestino = vuelos.stream()
             .collect(Collectors.groupingBy(
                 Vuelo::getDestino,
@@ -217,14 +209,14 @@ public class Main {
         );
     }
 
+    /**
+     * Muestra los pilotos y los aviones que han pilotado, sin repetir aviones.
+     */
     private static void mostrarPilotosYAviones() {
-    	
-    	AvionDAO avionDAO = new AvionDAO();
-
+        AvionDAO avionDAO = new AvionDAO();
         ArrayList<Vuelo> vuelos = VueloDao.listarVuelos();
-        
         Map<Integer, List<Integer>> pilotoAvionesMap = new HashMap<>();
-        
+
         for (Vuelo v : vuelos) {
             int idPiloto = v.getIdPiloto();
             int idAvion = v.getIdAvion();
@@ -233,14 +225,13 @@ public class Main {
                 .computeIfAbsent(idPiloto, k -> new ArrayList<>())
                 .add(idAvion);
         }
-        
+
         for (Map.Entry<Integer, List<Integer>> entry : pilotoAvionesMap.entrySet()) {
             Empleado piloto = empleadoDAO.obtenerPilotoPorId(entry.getKey());
 
             if (piloto != null) {
                 System.out.println("Piloto: " + piloto.getNombre() + " " + piloto.getApellido());
                 System.out.println("Aviones que ha pilotado:");
-
                 entry.getValue().stream().distinct().forEach(idAvion -> {
                     Avion avion = avionDAO.obtenerAvionPorId(idAvion);
                     if (avion != null) {
@@ -250,12 +241,13 @@ public class Main {
                 System.out.println();
             }
         }
-    	
     }
 
+    /**
+     * Actualiza datos de una puerta de embarque y cancela vuelos con destino Sevilla asignados a ella.
+     */
     private static void actualizarPuertaYCancelarVuelosSevilla() {
-
-    	System.out.print("Ingrese ID de la puerta de embarque a actualizar: ");
+        System.out.print("Ingrese ID de la puerta de embarque a actualizar: ");
         int idPuerta = Integer.parseInt(scanner.nextLine());
 
         PuertaEmbarque puerta = puertaDAO.obtenerPorId(idPuerta);
@@ -265,21 +257,15 @@ public class Main {
         }
 
         System.out.println("Puerta actual: " + puerta);
-
         System.out.print("Ingrese nuevo número de puerta (deje vacío para no cambiar): ");
         String nuevoNumero = scanner.nextLine().trim();
-        if (!nuevoNumero.isEmpty()) {
-            puerta.setNumero(nuevoNumero);
-        }
+        if (!nuevoNumero.isEmpty()) puerta.setNumero(nuevoNumero);
 
         System.out.print("Ingrese nuevo terminal (deje vacío para no cambiar): ");
         String nuevoTerminal = scanner.nextLine().trim();
-        if (!nuevoTerminal.isEmpty()) {
-            puerta.setTerminal(nuevoTerminal);
-        }
+        if (!nuevoTerminal.isEmpty()) puerta.setTerminal(nuevoTerminal);
 
-        boolean actualizado = puertaDAO.actualizarPuertaEmbarque(puerta);
-        if (!actualizado) {
+        if (!puertaDAO.actualizarPuertaEmbarque(puerta)) {
             System.out.println("Error al actualizar la puerta de embarque.");
             return;
         }
@@ -287,28 +273,22 @@ public class Main {
 
         ArrayList<Vuelo> vuelos = VueloDao.obtenerVuelosPorPuerta(idPuerta);
         List<Vuelo> vuelosSevilla = vuelos.stream()
-                .filter(v -> v.getDestino().equalsIgnoreCase("Sevilla"))
-                .collect(Collectors.toList());
-
-        if (vuelosSevilla.isEmpty()) {
-            System.out.println("No hay vuelos con destino a Sevilla desde esta puerta.");
-            return;
-        }
+            .filter(v -> v.getDestino().equalsIgnoreCase("Sevilla"))
+            .collect(Collectors.toList());
 
         for (Vuelo v : vuelosSevilla) {
             boolean exito = VueloDao.actualizarEstadoVuelo(v.getIdVuelo(), "Cancelado");
-            if (exito) {
-                System.out.println("Vuelo " + v.getNumeroVuelo() + " cancelado.");
-            } else {
-                System.out.println("Error al cancelar vuelo " + v.getNumeroVuelo());
-            }
+            System.out.println(exito ?
+                "Vuelo " + v.getNumeroVuelo() + " cancelado." :
+                "Error al cancelar vuelo " + v.getNumeroVuelo());
         }
-    	
     }
 
+    /**
+     * Elimina un vuelo de la base de datos a partir de su ID ingresado por el usuario.
+     */
     private static void eliminarVuelo() {
-
-    	try {
+        try {
             System.out.print("Ingrese el ID del vuelo a eliminar: ");
             int idVuelo = Integer.parseInt(scanner.nextLine());
 
@@ -325,6 +305,6 @@ public class Main {
         } catch (Exception e) {
             System.out.println("Ocurrió un error al intentar eliminar el vuelo.");
         }
-    	
     }
 }
+

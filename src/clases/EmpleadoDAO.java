@@ -1,23 +1,38 @@
 package clases;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
+/**
+ * <h1>Clase EmpleadoDAO</h1>
+ * Esta clase se encarga de acceder a los datos relacionados con los empleados,
+ * específicamente para verificar si un empleado es piloto y para obtener información
+ * de pilotos a través de su ID.
+ * Utiliza JDBC para conectar con la base de datos "Aeropuerto".
+ * 
+ * @author elanz
+ * @version 1.0
+ * @since 2025-05-24
+ */
 public class EmpleadoDAO {
-	
-	private Connection conexion;
+
+    private Connection conexion;
     private final String USUARIO = "root";
     private final String PASSWORD = "root";
     private final String MAQUINA = "localhost";
     private final String BD = "Aeropuerto";
 
+    /**
+     * Constructor. Establece la conexión con la base de datos.
+     */
     public EmpleadoDAO() {
         conexion = conectar();
     }
 
+    /**
+     * Conecta con la base de datos utilizando los parámetros definidos.
+     * 
+     * @return Objeto Connection conectado a la base de datos.
+     */
     private Connection conectar() {
         Connection con = null;
         String url = "jdbc:mysql://" + MAQUINA + "/" + BD;
@@ -29,6 +44,12 @@ public class EmpleadoDAO {
         return con;
     }
 
+    /**
+     * Verifica si un empleado con el ID dado es piloto.
+     * 
+     * @param idEmpleado Identificador del empleado.
+     * @return true si el empleado es piloto, false en caso contrario.
+     */
     public boolean esPiloto(int idEmpleado) {
         String sql = "SELECT cargo FROM Empleados WHERE id_empleado = ?";
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
@@ -42,7 +63,13 @@ public class EmpleadoDAO {
         }
         return false;
     }
-    
+
+    /**
+     * Obtiene un objeto Empleado que representa a un piloto específico según su ID.
+     * 
+     * @param id Identificador del piloto.
+     * @return Objeto Empleado si se encuentra y es piloto, null en caso contrario.
+     */
     public Empleado obtenerPilotoPorId(int id) {
         Empleado piloto = null;
         String sql = "SELECT * FROM Empleados WHERE id_empleado = ? AND cargo = 'Piloto'";
@@ -64,6 +91,4 @@ public class EmpleadoDAO {
         }
         return piloto;
     }
-
-
 }

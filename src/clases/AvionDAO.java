@@ -1,24 +1,39 @@
 package clases;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
+/**
+ * <h1>Clase AvionDAO</h1>
+ * Esta clase permite el acceso a los datos relacionados con aviones,
+ * incluyendo su obtención por ID, vuelos asociados a una puerta de embarque
+ * y la actualización del estado de un vuelo.
+ * Utiliza JDBC para la conexión con la base de datos "Aeropuerto".
+ * 
+ * @author elanz
+ * @version 1.0
+ * @since 2025-05-24
+ */
 public class AvionDAO {
-	
-	private Connection conexion;
+
+    private Connection conexion;
     private final String USUARIO = "root";
     private final String PASSWORD = "root";
     private final String MAQUINA = "localhost";
-    private final String BD = "Aeropuerto"; 
+    private final String BD = "Aeropuerto";
 
+    /**
+     * Constructor. Inicializa la conexión con la base de datos.
+     */
     public AvionDAO() {
         conexion = conectar();
     }
 
+    /**
+     * Establece la conexión con la base de datos utilizando JDBC.
+     *
+     * @return Objeto Connection conectado a la base de datos.
+     */
     private Connection conectar() {
         Connection con = null;
         String url = "jdbc:mysql://" + MAQUINA + "/" + BD;
@@ -29,7 +44,13 @@ public class AvionDAO {
         }
         return con;
     }
-    
+
+    /**
+     * Obtiene un objeto Avion desde la base de datos a partir de su ID.
+     *
+     * @param id Identificador del avión.
+     * @return Objeto Avion si se encuentra, o null en caso contrario.
+     */
     public Avion obtenerAvionPorId(int id) {
         Avion avion = null;
         String sql = "SELECT * FROM Aviones WHERE id_avion = ?";
@@ -51,7 +72,13 @@ public class AvionDAO {
         }
         return avion;
     }
-    
+
+    /**
+     * Obtiene una lista de vuelos que tienen asignada una puerta de embarque específica.
+     *
+     * @param idPuerta ID de la puerta de embarque.
+     * @return Lista de objetos Vuelo asociados a la puerta.
+     */
     public ArrayList<Vuelo> obtenerVuelosPorPuerta(int idPuerta) {
         ArrayList<Vuelo> vuelos = new ArrayList<>();
         String sql = "SELECT * FROM Vuelos WHERE id_puerta_embarque = ?";
@@ -81,7 +108,14 @@ public class AvionDAO {
         }
         return vuelos;
     }
-    
+
+    /**
+     * Actualiza el estado de un vuelo en la base de datos.
+     *
+     * @param idVuelo ID del vuelo a actualizar.
+     * @param nuevoEstado Nuevo estado del vuelo (ej: Cancelado, Retrasado).
+     * @return true si la actualización fue exitosa; false en caso contrario.
+     */
     public boolean actualizarEstadoVuelo(int idVuelo, String nuevoEstado) {
         String sql = "UPDATE Vuelos SET estado = ? WHERE id_vuelo = ?";
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
@@ -94,7 +128,5 @@ public class AvionDAO {
             return false;
         }
     }
-
-
-
 }
+
